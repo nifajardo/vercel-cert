@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server"
-import { CertificateCard } from "@/components/certificate-card"
+import { CertificateTemplate } from "@/components/certificate-template"
 import { CertificateDownload } from "@/components/certificate-download"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -47,7 +47,7 @@ export default async function VerifyPage({ params }: VerifyPageProps) {
 
   if (!certificate) {
     return (
-      <main className="min-h-screen bg-background flex items-center justify-center p-4">
+      <main className="min-h-screen flex items-center justify-center p-4" style={{ backgroundColor: "#808080" }}>
         <Card className="w-full max-w-md border-2 border-destructive/20">
           <CardHeader className="text-center">
             <div className="flex items-center justify-center gap-2 mb-2">
@@ -75,17 +75,19 @@ export default async function VerifyPage({ params }: VerifyPageProps) {
   }
 
   return (
-    <main className="min-h-screen bg-background flex flex-col items-center justify-center p-4 gap-6">
+    <main className="min-h-screen flex flex-col items-center justify-center p-4 gap-6" style={{ backgroundColor: "#808080" }}>
       <div className="text-center mb-4">
-        <h1 className="text-3xl font-bold text-foreground mb-2">Certificate Verification</h1>
-        <p className="text-muted-foreground">This certificate has been verified as authentic.</p>
+        <h1 className="text-3xl font-bold text-white mb-2">Certificate Verification</h1>
+        <p className="text-gray-200">This certificate has been verified as authentic.</p>
       </div>
+
+      <div className="w-full flex justify-center overflow-auto" >
+        <CertificateTemplate certificate={certificate} verificationUrl={verificationUrl} />
+      </div>
+
       
-      <CertificateCard certificate={certificate} verificationUrl={verificationUrl} />
-      
-      <CertificateDownload certificate={certificate} verificationUrl={verificationUrl} />
-      
-      <Button asChild variant="ghost" className="mt-4">
+
+      <Button asChild variant="ghost" className="mt-4 bg-white/10 hover:bg-white/20 text-white">
         <Link href="/">
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back to Home

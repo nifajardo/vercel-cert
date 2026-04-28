@@ -9,8 +9,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { createClient } from "@/lib/supabase/client"
 import type { Certificate, CertificateInput } from "@/lib/types"
-import { Loader2, Upload, ArrowLeft, AlertCircle, CheckCircle } from "lucide-react"
+import { Loader2, Upload, ArrowLeft, AlertCircle, CheckCircle, LogOut } from "lucide-react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { nanoid } from "nanoid"
 
 function generateCertificateNumber(): string {
@@ -20,11 +21,19 @@ function generateCertificateNumber(): string {
 }
 
 export default function AdminCertificatesPage() {
+  const router = useRouter()
   const [parsedData, setParsedData] = useState<CertificateInput[]>([])
   const [generatedCertificates, setGeneratedCertificates] = useState<Certificate[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
+
+  const handleSignOut = async () => {
+    const supabase = createClient()
+    await supabase.auth.signOut()
+    router.push("/admin/login")
+    router.refresh()
+  }
 
   const handleDataParsed = (data: CertificateInput[]) => {
     setParsedData(data)
@@ -80,12 +89,18 @@ export default function AdminCertificatesPage() {
     <main className="min-h-screen bg-background">
       <div className="container max-w-5xl mx-auto py-8 px-4">
         <div className="mb-8">
-          <Button asChild variant="ghost" className="mb-4">
-            <Link href="/">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Home
-            </Link>
-          </Button>
+          <div className="flex items-center justify-between">
+            <Button asChild variant="ghost" className="mb-4">
+              <Link href="/">
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back to Home
+              </Link>
+            </Button>
+            <Button variant="outline" size="sm" onClick={handleSignOut} className="gap-2">
+              <LogOut className="h-4 w-4" />
+              Sign Out
+            </Button>
+          </div>
           <h1 className="text-3xl font-bold text-foreground">Certificate Generator</h1>
           <p className="text-muted-foreground mt-2">
             Upload a CSV file to bulk generate certificates with QR codes
