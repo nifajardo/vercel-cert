@@ -19,7 +19,7 @@ export function QRCodeDisplay({ value, size = 128, className }: QRCodeDisplayPro
           width: size,
           margin: 2,
           color: {
-            dark: "#000000",
+            dark: "#110071",
             light: "#ffffff",
           },
         })

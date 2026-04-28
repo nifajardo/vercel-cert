@@ -7,7 +7,7 @@ import { Progress } from "@/components/ui/progress"
 import { CertificateTemplate } from "@/components/certificate-template"
 import { QRCodeDisplay } from "@/components/qr-code-display"
 import type { Certificate } from "@/lib/types"
-import { Download, FileArchive, Loader2, CheckCircle, Eye } from "lucide-react"
+import { FileArchive, Loader2, CheckCircle, Eye } from "lucide-react"
 import html2canvas from "html2canvas"
 import jsPDF from "jspdf"
 import {
@@ -28,124 +28,111 @@ export function CertificateGenerator({ certificates }: CertificateGeneratorProps
   const [selectedCert, setSelectedCert] = useState<Certificate | null>(null)
   const certificateRef = useRef<HTMLDivElement>(null)
 
-  const baseUrl = typeof window !== "undefined" 
-    ? window.location.origin 
-    : ""
-
+  const baseUrl = typeof window !== "undefined" ? window.location.origin : ""
   const getVerificationUrl = (certNumber: string) => `${baseUrl}/verify/${certNumber}`
 
-  const downloadSinglePDF = async (cert: Certificate) => {
+  /** Mount a certificate, wait for paint + QR generation, then capture. */
+  const mountAndCapture = async (cert: Certificate): Promise<HTMLCanvasElement | null> => {
     setSelectedCert(cert)
-    
-    // Wait for render and QR code generation
-    await new Promise((resolve) => setTimeout(resolve, 300))
+    // Give React time to render and QR code time to generate
+    await new Promise((resolve) => setTimeout(resolve, 350))
 
     if (!certificateRef.current) {
-      console.log("[v0] Certificate ref not available")
-      setSelectedCert(null)
-      return
+      console.warn("Certificate ref not available for:", cert.certificate_number)
+      return null
     }
 
-    const canvas = await html2canvas(certificateRef.current, {
+    return html2canvas(certificateRef.current, {
       scale: 2,
       useCORS: true,
       backgroundColor: "#ffffff",
+      // Template uses only inline styles so stripping sheets has no visual impact,
+      // but prevents html2canvas from choking on lab() colour syntax.
       onclone: (clonedDoc) => {
-        // Remove all stylesheets to avoid lab() color parsing issues
-        const stylesheets = clonedDoc.querySelectorAll('link[rel="stylesheet"], style')
-        stylesheets.forEach((sheet) => sheet.remove())
+        clonedDoc
+          .querySelectorAll<HTMLElement>('link[rel="stylesheet"], style')
+          .forEach((el) => el.remove())
       },
     })
+  }
 
-    const imgData = canvas.toDataURL("image/png")
-    const pdf = new jsPDF({
-      orientation: "landscape",
-      unit: "px",
-      format: [canvas.width / 2, canvas.height / 2],
-    })
+  // ── Single-certificate exports ────────────────────────────────────────────
 
-    pdf.addImage(imgData, "PNG", 0, 0, canvas.width / 2, canvas.height / 2)
-    pdf.save(`certificate-${cert.certificate_number}.pdf`)
-    
-    setSelectedCert(null)
+  const downloadSinglePDF = async (cert: Certificate) => {
+    try {
+      const canvas = await mountAndCapture(cert)
+      if (!canvas) return
+
+      const imgData = canvas.toDataURL("image/png")
+      const w = canvas.width / 2
+      const h = canvas.height / 2
+
+      const pdf = new jsPDF({ orientation: "landscape", unit: "px", format: [w, h] })
+      pdf.addImage(imgData, "PNG", 0, 0, w, h)
+      pdf.save(`certificate-${cert.certificate_number}.pdf`)
+    } catch (err) {
+      console.error("Single PDF export error:", err)
+    } finally {
+      setSelectedCert(null)
+    }
   }
 
   const downloadSinglePNG = async (cert: Certificate) => {
-    setSelectedCert(cert)
-    
-    // Wait for render and QR code generation
-    await new Promise((resolve) => setTimeout(resolve, 300))
+    try {
+      const canvas = await mountAndCapture(cert)
+      if (!canvas) return
 
-    if (!certificateRef.current) {
-      console.log("[v0] Certificate ref not available")
+      const link = document.createElement("a")
+      link.download = `certificate-${cert.certificate_number}.png`
+      link.href = canvas.toDataURL("image/png")
+      link.click()
+    } catch (err) {
+      console.error("Single PNG export error:", err)
+    } finally {
       setSelectedCert(null)
-      return
     }
-
-    const canvas = await html2canvas(certificateRef.current, {
-      scale: 2,
-      useCORS: true,
-      backgroundColor: "#ffffff",
-      onclone: (clonedDoc) => {
-        // Remove all stylesheets to avoid lab() color parsing issues
-        const stylesheets = clonedDoc.querySelectorAll('link[rel="stylesheet"], style')
-        stylesheets.forEach((sheet) => sheet.remove())
-      },
-    })
-
-    const link = document.createElement("a")
-    link.download = `certificate-${cert.certificate_number}.png`
-    link.href = canvas.toDataURL("image/png")
-    link.click()
-    
-    setSelectedCert(null)
   }
+
+  // ── Batch export ──────────────────────────────────────────────────────────
 
   const downloadAllPDFs = async () => {
     setIsGenerating(true)
     setProgress(0)
 
-    const pdf = new jsPDF({
-      orientation: "landscape",
-      unit: "px",
-      format: [800, 600],
-    })
+    // Use the first certificate's canvas dimensions to initialise the PDF.
+    // Subsequent pages will match because CertificateTemplate has fixed dimensions.
+    let pdf: jsPDF | null = null
 
-    for (let i = 0; i < certificates.length; i++) {
-      const cert = certificates[i]
-      setSelectedCert(cert)
-      
-      // Wait for render and QR code generation
-      await new Promise((resolve) => setTimeout(resolve, 300))
+    try {
+      for (let i = 0; i < certificates.length; i++) {
+        const cert = certificates[i]
+        const canvas = await mountAndCapture(cert)
 
-      if (certificateRef.current) {
-        const canvas = await html2canvas(certificateRef.current, {
-          scale: 2,
-          useCORS: true,
-          backgroundColor: "#ffffff",
-          onclone: (clonedDoc) => {
-            // Remove all stylesheets to avoid lab() color parsing issues
-            const stylesheets = clonedDoc.querySelectorAll('link[rel="stylesheet"], style')
-            stylesheets.forEach((sheet) => sheet.remove())
-          },
-        })
+        if (canvas) {
+          const imgData = canvas.toDataURL("image/png")
+          const w = canvas.width / 2
+          const h = canvas.height / 2
 
-        const imgData = canvas.toDataURL("image/png")
-        
-        if (i > 0) {
-          pdf.addPage([canvas.width / 2, canvas.height / 2], "landscape")
+          if (!pdf) {
+            pdf = new jsPDF({ orientation: "landscape", unit: "px", format: [w, h] })
+          } else {
+            pdf.addPage([w, h], "landscape")
+          }
+
+          pdf.addImage(imgData, "PNG", 0, 0, w, h)
         }
-        
-        pdf.addImage(imgData, "PNG", 0, 0, canvas.width / 2, canvas.height / 2)
+
+        setProgress(((i + 1) / certificates.length) * 100)
       }
 
-      setProgress(((i + 1) / certificates.length) * 100)
+      pdf?.save(`certificates-batch-${Date.now()}.pdf`)
+    } catch (err) {
+      console.error("Batch PDF export error:", err)
+    } finally {
+      setIsGenerating(false)
+      setSelectedCert(null)
+      setProgress(0)
     }
-
-    pdf.save(`certificates-batch-${Date.now()}.pdf`)
-    setIsGenerating(false)
-    setSelectedCert(null)
-    setProgress(0)
   }
 
   if (certificates.length === 0) return null
@@ -164,7 +151,7 @@ export function CertificateGenerator({ certificates }: CertificateGeneratorProps
             {isGenerating && (
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-sm">
-                  <span>Generating PDF...</span>
+                  <span>Generating PDF…</span>
                   <span>{Math.round(progress)}%</span>
                 </div>
                 <Progress value={progress} />
@@ -204,18 +191,21 @@ export function CertificateGenerator({ certificates }: CertificateGeneratorProps
                         </p>
                       </div>
                     </div>
+
                     <div className="flex items-center gap-2">
+                      {/* ── Preview dialog ── */}
                       <Dialog>
                         <DialogTrigger asChild>
                           <Button variant="ghost" size="sm">
                             <Eye className="h-4 w-4" />
                           </Button>
                         </DialogTrigger>
-                        <DialogContent className="max-w-4xl">
+                       <DialogContent className="!w-[60vw] !h-[95vh] !max-w-none">
                           <DialogHeader>
                             <DialogTitle>Certificate Preview</DialogTitle>
                           </DialogHeader>
                           <div className="overflow-auto">
+                            {/* Render without ref — preview only, no capture needed */}
                             <CertificateTemplate
                               certificate={cert}
                               verificationUrl={getVerificationUrl(cert.certificate_number)}
@@ -223,6 +213,7 @@ export function CertificateGenerator({ certificates }: CertificateGeneratorProps
                           </div>
                         </DialogContent>
                       </Dialog>
+
                       <Button
                         variant="outline"
                         size="sm"
@@ -248,8 +239,23 @@ export function CertificateGenerator({ certificates }: CertificateGeneratorProps
         </CardContent>
       </Card>
 
-      {/* Hidden certificate template for rendering */}
-      <div className="absolute -left-[9999px] -top-[9999px]">
+      {/*
+        ── Off-screen render target ─────────────────────────────────────────
+        position: fixed keeps it out of the document flow regardless of scroll.
+        Only mounts when a capture is in progress (selectedCert !== null).
+      */}
+      <div
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          zIndex: -1,
+          transform: "scale(1)",
+          transformOrigin: "top left",
+          pointerEvents: "none",
+        }}
+        aria-hidden="true"
+      >
         {selectedCert && (
           <CertificateTemplate
             ref={certificateRef}

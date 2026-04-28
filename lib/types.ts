@@ -5,7 +5,7 @@ export interface Certificate {
   email: string
   date_issued: string
   event_attended: string
-  affiliation: string | null
+  venue: string | null
   contact_number: string | null
   created_at: string
   updated_at: string
@@ -16,6 +16,6 @@ export interface CertificateInput {
   email: string
   date_issued: string
   event_attended: string
-  affiliation?: string
+  venue?: string
   contact_number?: string
 }

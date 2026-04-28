@@ -1,7 +1,5 @@
-"use client"
-
-import { forwardRef, useEffect, useState } from "react"
-import QRCode from "qrcode"
+import { forwardRef } from "react"
+import { QRCodeDisplay } from "@/components/qr-code-display"
 import type { Certificate } from "@/lib/types"
 
 interface CertificateTemplateProps {
@@ -9,294 +7,207 @@ interface CertificateTemplateProps {
   verificationUrl: string
 }
 
-// Inline QR code component for html2canvas compatibility
-function InlineQRCode({ value, size = 80 }: { value: string; size?: number }) {
-  const [qrDataUrl, setQrDataUrl] = useState<string>("")
-
-  useEffect(() => {
-    const generateQR = async () => {
-      try {
-        const dataUrl = await QRCode.toDataURL(value, {
-          width: size,
-          margin: 2,
-          color: {
-            dark: "#000000",
-            light: "#ffffff",
-          },
-        })
-        setQrDataUrl(dataUrl)
-      } catch (error) {
-        console.error("Error generating QR code:", error)
-      }
-    }
-
-    generateQR()
-  }, [value, size])
-
-  if (!qrDataUrl) {
-    return (
-      <div
-        style={{
-          width: size,
-          height: size,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          backgroundColor: "#f3f4f6",
-        }}
-      >
-        <span style={{ color: "#9ca3af", fontSize: "12px" }}>Loading...</span>
-      </div>
-    )
-  }
-
-  return (
-    <img
-      src={qrDataUrl}
-      alt="QR Code"
-      width={size}
-      height={size}
-      style={{ border: "1px solid #e5e7eb", borderRadius: "4px" }}
-    />
-  )
-}
-
+/**
+ * Renders the Sibol-Pinoy certificate by overlaying all dynamic fields directly
+ * on top of the official template image (public/certificate-template.png).
+ *
+ * Canvas: 1122 × 794 px  (A4 landscape — exactly half of the native 2245 × 1587 px image)
+ *
+ * Fields overlaid:
+ *   • Full Name          – large centered block, mid-certificate
+ *   • Event Name         – inline inside participation sentence
+ *   • Date               – inline inside participation sentence
+ *   • Venue              – inline inside "Given this…" line
+ *   • Certificate Number – below QR code, top-right
+ *   • QR Code            – top-right corner
+ *
+ * All styles are inline so html2canvas captures the full certificate faithfully
+ * even after stripping external stylesheets.
+ */
 export const CertificateTemplate = forwardRef<HTMLDivElement, CertificateTemplateProps>(
   ({ certificate, verificationUrl }, ref) => {
-    const formattedDate = new Date(certificate.date_issued).toLocaleDateString("en-US", {
+    const issued = new Date(certificate.date_issued)
+
+    const ordinal = (n: number) => {
+      const s = ["th", "st", "nd", "rd"]
+      const v = n % 100
+      return n + (s[(v - 20) % 10] || s[v] || s[0])
+    }
+
+    const day      = issued.getDate()
+    const month    = issued.toLocaleDateString("en-US", { month: "long" })
+    const year     = issued.getFullYear()
+    const longDate = issued.toLocaleDateString("en-US", {
       year: "numeric",
       month: "long",
       day: "numeric",
     })
 
-    // Using inline styles with hex colors for html2canvas compatibility
+    // Shared text style for body paragraphs
+    const bodyText: React.CSSProperties = {
+      position: "absolute",
+      left: "50px",
+      right: "178px",
+      textAlign: "center",
+      fontSize: "12.5px",
+      color: "#1a1a1a",
+      lineHeight: 1.75,
+      fontFamily: "'Arial', sans-serif",
+    }
+
     return (
       <div
         ref={ref}
         style={{
-          width: "800px",
-          height: "600px",
-          backgroundColor: "#ffffff",
           position: "relative",
+          width: "1122px",
+          height: "794px",
           overflow: "hidden",
-          fontFamily: "Georgia, serif",
+          fontFamily: "'Arial', sans-serif",
+          lineHeight: 1,
         }}
       >
-        {/* Decorative border */}
-        <div
-          style={{
-            position: "absolute",
-            inset: "16px",
-            border: "4px solid #b45309",
-            borderRadius: "8px",
-          }}
-        />
-        <div
-          style={{
-            position: "absolute",
-            inset: "24px",
-            border: "2px solid #d97706",
-            borderRadius: "8px",
-          }}
-        />
-
-        {/* Corner decorations */}
-        <div
-          style={{
-            position: "absolute",
-            top: "32px",
-            left: "32px",
-            width: "64px",
-            height: "64px",
-            borderLeft: "4px solid #b45309",
-            borderTop: "4px solid #b45309",
-            borderRadius: "8px 0 0 0",
-          }}
-        />
-        <div
-          style={{
-            position: "absolute",
-            top: "32px",
-            right: "32px",
-            width: "64px",
-            height: "64px",
-            borderRight: "4px solid #b45309",
-            borderTop: "4px solid #b45309",
-            borderRadius: "0 8px 0 0",
-          }}
-        />
-        <div
-          style={{
-            position: "absolute",
-            bottom: "32px",
-            left: "32px",
-            width: "64px",
-            height: "64px",
-            borderLeft: "4px solid #b45309",
-            borderBottom: "4px solid #b45309",
-            borderRadius: "0 0 0 8px",
-          }}
-        />
-        <div
-          style={{
-            position: "absolute",
-            bottom: "32px",
-            right: "32px",
-            width: "64px",
-            height: "64px",
-            borderRight: "4px solid #b45309",
-            borderBottom: "4px solid #b45309",
-            borderRadius: "0 0 8px 0",
-          }}
-        />
-
-        {/* Content */}
-        <div
+        {/* ── Template background ─────────────────────────────────────────
+            Place the original PNG at: /public/certificate-template.png   */}
+        {/* <img
+          src="/TWP_2026.png"
+          alt="Certificate template"
+          width={1122}
+          height={794}
+          style={{ position: "absolute", inset: 0, display: "block" }}
+          crossOrigin="anonymous"
+        /> */}
+        {/* Background (IMPORTANT: use inline base64 or absolute URL) */}
+        <img
+          src="/TWP_2026.png"
+          alt="Certificate template"
+          width={1122}
+          height={794}
           style={{
             position: "absolute",
             inset: 0,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            padding: "48px 64px",
+            width: "1122px",
+            height: "794px",
+            objectFit: "cover",
+          }}
+          crossOrigin="anonymous"
+        />
+        {/* ═══════════════════════════════════════════════════════════════
+            FIELD OVERLAYS  (absolute px on the 1122 × 794 canvas)
+            Adjust top/left/right values if your template image differs.
+        ═══════════════════════════════════════════════════════════════ */}
+
+       {/* QR Code */}
+        <div
+          style={{
+            position: "absolute",
+            top: "10px",
+            right: "38px",
+            width: "140px",
+            height: "140px",
+            background: "#fff",
+            color: "#110071",
+            padding: "6px",
+            boxSizing: "border-box",
           }}
         >
-          {/* Header */}
-          <div style={{ textAlign: "center", marginBottom: "24px" }}>
-            <h1
-              style={{
-                fontSize: "36px",
-                fontWeight: "bold",
-                color: "#92400e",
-                letterSpacing: "0.05em",
-                marginBottom: "8px",
-              }}
-            >
-              CERTIFICATE
-            </h1>
-            <p
-              style={{
-                fontSize: "18px",
-                color: "#b45309",
-                letterSpacing: "0.1em",
-                textTransform: "uppercase",
-              }}
-            >
-              of Participation
-            </p>
-          </div>
+          <QRCodeDisplay value={verificationUrl} size={128} />
+        </div>
 
-          {/* Divider */}
-          <div
-            style={{
-              width: "192px",
-              height: "2px",
-              background: "linear-gradient(to right, transparent, #b45309, transparent)",
-              marginBottom: "24px",
-            }}
-          />
+        {/* Certificate Number */}
+        <div
+          style={{
+            position: "absolute",
+            top: "150px",
+            right: "30px",
+            width: "160px",
+            textAlign: "center",
+            fontSize: "16px",
+            fontWeight: 700,
+            color: "#000",
+            letterSpacing: "0.03em",
+            fontFamily: "Glacial Indifference, 'Arial', sans-serif",
+          }}
+        >
+          {certificate.certificate_number}
+        </div>
 
-          {/* Introduction */}
-          <p style={{ color: "#4b5563", fontSize: "18px", marginBottom: "16px" }}>
-            This is to certify that
-          </p>
+        {/* Full Name */}
+        <div
+          style={{
+            position: "absolute",
+            top: "270px",
+            left: "100px",
+            right: "100px",
+            textAlign: "center",
+            fontSize: "45px",
+            fontWeight: 700,
+            color: "#000",
+            letterSpacing: "0.04em",
+            textTransform: "uppercase",
+            fontFamily: "'Georgia', serif",
+          }}
+        >
+          {certificate.full_name}
+        </div>
 
-          {/* Name */}
-          <h2
-            style={{
-              fontSize: "30px",
-              fontWeight: "bold",
-              color: "#1f2937",
-              marginBottom: "8px",
-              textAlign: "center",
-            }}
-          >
-            {certificate.full_name}
-          </h2>
+        {/* Participation Line */}
+        <div
+          style={{
+            position: "absolute",
+            top: "360px",
+            left: "80px",
+            right: "100px",
+            textAlign: "center",
+            fontSize: "21px",
+            lineHeight: 1,
+            fontFamily: "Montserrat, 'Arial', sans-serif",
+          }}
+        >
+          For his/her active participation in the{" "}
+          <strong>{certificate.event_attended}</strong> held on{" "}
+          <strong>{longDate}</strong>.
+        </div>
 
-          {/* Affiliation */}
-          {certificate.affiliation && (
-            <p
-              style={{
-                color: "#4b5563",
-                fontSize: "16px",
-                marginBottom: "16px",
-                fontStyle: "italic",
-              }}
-            >
-              {certificate.affiliation}
-            </p>
+        {/* Description */}
+        <div
+          style={{
+            position: "absolute",
+            top: "410px",
+            left: "80px",
+            right: "100px",
+            textAlign: "center",
+            fontSize: "21px",
+            lineHeight: 1,
+          }}
+        >
+          This also certifies that he/she has satisfactorily completed all the workshop
+          outputs which validates his/her achievement of the intended learning outcomes.
+        </div>
+
+        {/* Date + Venue */}
+        <div
+          style={{
+            position: "absolute",
+            top: "480px",
+            left: "80px",
+            right: "200px",
+            textAlign: "center",
+            fontSize: "21px",
+          }}
+        >
+          Given this <strong>{ordinal(day)}</strong> day of{" "}
+          <strong>{month}</strong> <strong>{year}</strong>
+          {certificate.venue && (
+            <>
+              {" "}at <strong>{certificate.venue}</strong>
+            </>
           )}
-
-          {/* Event */}
-          <p style={{ color: "#4b5563", fontSize: "16px", marginBottom: "8px" }}>
-            has successfully participated in
-          </p>
-          <h3
-            style={{
-              fontSize: "24px",
-              fontWeight: "600",
-              color: "#92400e",
-              marginBottom: "24px",
-              textAlign: "center",
-            }}
-          >
-            {certificate.event_attended}
-          </h3>
-
-          {/* Date */}
-          <p style={{ color: "#4b5563", fontSize: "16px", marginBottom: "32px" }}>
-            Issued on {formattedDate}
-          </p>
-
-          {/* Footer with QR Code */}
-          <div
-            style={{
-              display: "flex",
-              alignItems: "flex-end",
-              justifyContent: "space-between",
-              width: "100%",
-              marginTop: "auto",
-            }}
-          >
-            <div style={{ textAlign: "left" }}>
-              <p style={{ fontSize: "12px", color: "#6b7280", marginBottom: "4px" }}>
-                Certificate No:
-              </p>
-              <p style={{ fontSize: "14px", fontFamily: "monospace", color: "#374151" }}>
-                {certificate.certificate_number}
-              </p>
-            </div>
-
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-              }}
-            >
-              <InlineQRCode value={verificationUrl} size={80} />
-              <p style={{ fontSize: "12px", color: "#6b7280", marginTop: "4px" }}>
-                Scan to verify
-              </p>
-            </div>
-
-            <div style={{ textAlign: "right" }}>
-              <div
-                style={{
-                  width: "128px",
-                  borderTop: "1px solid #9ca3af",
-                  marginBottom: "4px",
-                }}
-              />
-              <p style={{ fontSize: "14px", color: "#4b5563" }}>Authorized Signature</p>
-            </div>
-          </div>
+          .
         </div>
       </div>
     )
-  }
+  },
 )
 
 CertificateTemplate.displayName = "CertificateTemplate"
