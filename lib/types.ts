@@ -6,7 +6,6 @@ export interface Certificate {
   date_issued: string
   event_attended: string
   venue: string | null
-  contact_number: string | null
   created_at: string
   updated_at: string
 }
@@ -17,5 +16,4 @@ export interface CertificateInput {
   date_issued: string
   event_attended: string
   venue?: string
-  contact_number?: string
 }

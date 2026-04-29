@@ -6,8 +6,7 @@ CREATE TABLE IF NOT EXISTS certificates (
   email TEXT NOT NULL,
   date_issued DATE NOT NULL,
   event_attended TEXT NOT NULL,
-  affiliation TEXT,
-  contact_number TEXT,
+  venue TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );

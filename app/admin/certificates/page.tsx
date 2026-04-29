@@ -113,7 +113,7 @@ export default function AdminCertificatesPage() {
               <CardTitle>Upload CSV File</CardTitle>
               <CardDescription>
                 Upload a CSV file with the following columns: full_name, email, date_issued,
-                event_attended. Optional: affiliation, contact_number
+                event_attended. Optional: venue
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -166,9 +166,9 @@ export default function AdminCertificatesPage() {
             Your CSV file should have the following structure:
           </p>
           <pre className="bg-background p-4 rounded-md text-sm overflow-x-auto border">
-{`full_name,email,date_issued,event_attended,affiliation,contact_number
-John Doe,john@example.com,2024-01-15,Tech Summit 2024,ABC Company,+1234567890
-Jane Smith,jane@example.com,2024-01-15,Tech Summit 2024,XYZ Inc,+0987654321`}
+{`full_name,email,date_issued,event_attended,venue
+John Doe,john@example.com,2024-01-15,Tech Summit 2024,San Jose City, Nueva Ecija
+Jane Smith,jane@example.com,2024-01-15,Tech Summit 2024,Resorts World Manila`}
           </pre>
         </div>
       </div>

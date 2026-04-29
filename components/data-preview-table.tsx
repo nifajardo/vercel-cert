@@ -37,8 +37,7 @@ export function DataPreviewTable({ data }: DataPreviewTableProps) {
                 <TableHead>Email</TableHead>
                 <TableHead>Date Issued</TableHead>
                 <TableHead>Event</TableHead>
-                <TableHead>Affiliation</TableHead>
-                <TableHead>Contact</TableHead>
+                <TableHead>Venue</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -50,10 +49,7 @@ export function DataPreviewTable({ data }: DataPreviewTableProps) {
                   <TableCell>{row.date_issued}</TableCell>
                   <TableCell>{row.event_attended}</TableCell>
                   <TableCell className="text-muted-foreground">
-                    {row.affiliation || "-"}
-                  </TableCell>
-                  <TableCell className="text-muted-foreground">
-                    {row.contact_number || "-"}
+                    {row.venue || "-"}
                   </TableCell>
                 </TableRow>
               ))}

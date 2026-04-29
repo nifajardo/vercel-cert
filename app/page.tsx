@@ -32,9 +32,9 @@ export default function HomePage() {
                 </div>
                 <CardTitle>Verify Certificate</CardTitle>
               </div>
-              <CardDescription>
+              {/* <CardDescription>
                 Scan a QR code or enter a certificate number to verify its authenticity
-              </CardDescription>
+              </CardDescription> */}
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground mb-4">
@@ -80,7 +80,7 @@ export default function HomePage() {
         </div>
 
         {/* Quick Stats */}
-        <div className="grid grid-cols-3 gap-4 mb-12">
+        {/* <div className="grid grid-cols-3 gap-4 mb-12">
           <div className="text-center p-6 bg-muted/30 rounded-lg">
             <p className="text-3xl font-bold text-primary">100%</p>
             <p className="text-sm text-muted-foreground">Secure Verification</p>
@@ -93,10 +93,10 @@ export default function HomePage() {
             <p className="text-3xl font-bold text-primary">PDF/PNG</p>
             <p className="text-sm text-muted-foreground">Download Options</p>
           </div>
-        </div>
+        </div> */}
 
         {/* Features List */}
-        <div className="bg-muted/30 rounded-lg p-8">
+        {/* <div className="bg-muted/30 rounded-lg p-8">
           <h2 className="text-2xl font-bold text-center mb-6">Key Features</h2>
           <div className="grid md:grid-cols-2 gap-4">
             {[
@@ -113,7 +113,8 @@ export default function HomePage() {
               </div>
             ))}
           </div>
-        </div>
+        </div> */}
+        
       </div>
     </main>
   )
