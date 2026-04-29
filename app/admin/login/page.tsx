@@ -46,14 +46,14 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-background p-4">
-      <Card className="w-full max-w-md">
+    <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/10 via-background to-secondary/20 p-4">
+      <Card className="w-full max-w-md border-2 border-primary/20">
         <CardHeader className="space-y-4 text-center">
-          <div className="mx-auto w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+          <div className="mx-auto w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center">
             <Lock className="h-6 w-6 text-primary" />
           </div>
           <div>
-            <CardTitle className="text-2xl">Admin Login</CardTitle>
+            <CardTitle className="text-2xl">Sibol-Pinoy Admin</CardTitle>
             <CardDescription>
               Sign in to access the certificate management system
             </CardDescription>

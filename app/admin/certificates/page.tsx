@@ -86,7 +86,7 @@ export default function AdminCertificatesPage() {
   }
 
   return (
-    <main className="min-h-screen bg-background">
+    <main className="min-h-screen bg-gradient-to-br from-primary/10 via-background to-secondary/20">
       <div className="container max-w-5xl mx-auto py-8 px-4">
         <div className="mb-8">
           <div className="flex items-center justify-between">

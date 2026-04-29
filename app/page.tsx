@@ -5,18 +5,20 @@ import Link from "next/link"
 
 export default function HomePage() {
   return (
-    <main className="min-h-screen bg-background">
+    <main className="min-h-screen bg-gradient-to-br from-primary/10 via-background to-secondary/20">
       <div className="container max-w-5xl mx-auto py-16 px-4">
         {/* Hero Section */}
         <div className="text-center mb-16">
           <div className="flex items-center justify-center gap-3 mb-6">
-            <Shield className="h-12 w-12 text-primary" />
+            <div className="p-3 bg-secondary/20 rounded-full">
+              <Shield className="h-12 w-12 text-primary" />
+            </div>
           </div>
           <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
-            Certificate Verification System
+            Sibol-Pinoy Certificate Verification
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Generate, manage, and verify certificates with QR codes. Secure, fast, and reliable.
+            Secure certificate management and verification system powered by Sibol-Pinoy Management Consultancy
           </p>
         </div>
 

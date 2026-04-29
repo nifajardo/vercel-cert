@@ -47,7 +47,7 @@ export default async function VerifyPage({ params }: VerifyPageProps) {
 
   if (!certificate) {
     return (
-      <main className="min-h-screen flex items-center justify-center p-4" style={{ backgroundColor: "#808080" }}>
+      <main className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-primary/10 via-background to-primary/5">
         <Card className="w-full max-w-md border-2 border-destructive/20">
           <CardHeader className="text-center">
             <div className="flex items-center justify-center gap-2 mb-2">
@@ -75,10 +75,10 @@ export default async function VerifyPage({ params }: VerifyPageProps) {
   }
 
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center p-4 gap-6" style={{ backgroundColor: "#808080" }}>
+    <main className="min-h-screen flex flex-col items-center justify-center p-6 gap-6 bg-gradient-to-br from-primary/10 via-background to-primary/5">
       <div className="text-center mb-4">
-        <h1 className="text-3xl font-bold text-white mb-2">Certificate Verification</h1>
-        <p className="text-gray-200">This certificate has been verified as authentic.</p>
+        <h1 className="text-3xl font-bold text-foreground mb-2">Certificate Verification</h1>
+        <p className="text-muted-foreground">This certificate has been verified as authentic.</p>
       </div>
 
       <div className="w-full flex justify-center overflow-auto" >
@@ -87,7 +87,7 @@ export default async function VerifyPage({ params }: VerifyPageProps) {
 
       
 
-      <Button asChild variant="ghost" className="mt-4 bg-white/10 hover:bg-white/20 text-white">
+      <Button asChild variant="default" className="mt-4 bg-primary hover:bg-primary/90">
         <Link href="/">
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back to Home

@@ -8,8 +8,8 @@ const _geist = Geist({ subsets: ["latin"] });
 const _geistMono = Geist_Mono({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: 'Certificate Verification System',
-  description: 'Generate, manage, and verify certificates with QR codes',
+  title: 'Sibol-Pinoy Certificate Verification',
+  description: 'Certificate verification system powered by Sibol-Pinoy Management Consultancy',
   generator: 'v0.app',
   icons: {
     icon: [
