@@ -14,7 +14,7 @@ interface CSVUploaderProps {
   onClear: () => void
 }
 
-const REQUIRED_FIELDS = ["full_name", "email", "date_issued", "event_attended"]
+const REQUIRED_FIELDS = ["full_name", "email", "date_issued", "event_attended", "event_dates"]
 const OPTIONAL_FIELDS = ["venue"]
 const ALL_FIELDS = [...REQUIRED_FIELDS, ...OPTIONAL_FIELDS]
 
@@ -49,6 +49,7 @@ export function CSVUploader({ onDataParsed, onClear }: CSVUploaderProps) {
         email: normalizedRow.email || "",
         date_issued: normalizedRow.date_issued || "",
         event_attended: normalizedRow.event_attended || "",
+        event_dates: normalizedRow.event_dates || "",
         venue: normalizedRow.venue || undefined,
       }
     })
@@ -149,7 +150,7 @@ export function CSVUploader({ onDataParsed, onClear }: CSVUploaderProps) {
           </p>
           <p className="text-sm text-muted-foreground mb-4">or click to browse</p>
           <p className="text-xs text-muted-foreground">
-            Required columns: full_name, email, date_issued, event_attended
+            Required columns: full_name, email, date_issued, event_dates, event_attended
           </p>
           <p className="text-xs text-muted-foreground">
             Optional columns: venue

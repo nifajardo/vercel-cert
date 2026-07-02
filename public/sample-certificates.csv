@@ -1,4 +1,4 @@
-full_name,email,date_issued,event_attended,venue
+full_name,email,date_issued,event_dates, event_attended,venue
 John Doe,john.doe@example.com,2024-03-15,Web Development Workshop,ABC University
 Jane Smith,jane.smith@example.com,2024-03-15,Web Development Workshop,XYZ Company
 Bob Johnson,bob.johnson@example.com,2024-03-16,Data Science Bootcamp,Tech Institute

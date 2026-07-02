@@ -47,6 +47,7 @@ export function DataPreviewTable({ data }: DataPreviewTableProps) {
                   <TableCell>{row.full_name}</TableCell>
                   <TableCell className="text-muted-foreground">{row.email}</TableCell>
                   <TableCell>{row.date_issued}</TableCell>
+                  <TableCell>{row.event_dates}</TableCell>
                   <TableCell>{row.event_attended}</TableCell>
                   <TableCell className="text-muted-foreground">
                     {row.venue || "-"}

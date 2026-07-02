@@ -27,6 +27,7 @@ interface CertificateTemplateProps {
 export const CertificateTemplate = forwardRef<HTMLDivElement, CertificateTemplateProps>(
   ({ certificate, verificationUrl }, ref) => {
     const issued = new Date(certificate.date_issued)
+    const event_date = certificate.event_dates;
 
     const ordinal = (n: number) => {
       const s = ["th", "st", "nd", "rd"]
@@ -166,7 +167,7 @@ export const CertificateTemplate = forwardRef<HTMLDivElement, CertificateTemplat
         >
           For his/her active participation in the{" "}
           <strong>{certificate.event_attended}</strong> held on{" "}
-          <strong>{longDate}</strong>.
+          <strong>{event_date}</strong>.
         </div>
 
         {/* Description */}
