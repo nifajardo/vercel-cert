@@ -5,8 +5,9 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { CertificateTemplate } from "@/components/certificate-template"
+import { CertificateTemplateAttendance } from "@/components/certificate-template-attendance"
 import { QRCodeDisplay } from "@/components/qr-code-display"
-import type { Certificate } from "@/lib/types"
+import type { Certificate, CertificateType } from "@/lib/types"
 import { FileArchive, Loader2, CheckCircle, Eye } from "lucide-react"
 import html2canvas from "html2canvas"
 import jsPDF from "jspdf"
@@ -20,9 +21,13 @@ import {
 
 interface CertificateGeneratorProps {
   certificates: Certificate[]
+  /** Which certificate template to render. Defaults to "completion". */
+  certificateType?: CertificateType
 }
 
-export function CertificateGenerator({ certificates }: CertificateGeneratorProps) {
+export function CertificateGenerator({ certificates, certificateType = "completion" }: CertificateGeneratorProps) {
+  // Pick the template component once based on the selected certificate type.
+  const TemplateComponent = certificateType === "attendance" ? CertificateTemplateAttendance : CertificateTemplate
   const [isGenerating, setIsGenerating] = useState(false)
   const [progress, setProgress] = useState(0)
   const [selectedCert, setSelectedCert] = useState<Certificate | null>(null)
@@ -206,7 +211,7 @@ export function CertificateGenerator({ certificates }: CertificateGeneratorProps
                           </DialogHeader>
                           <div className="overflow-auto">
                             {/* Render without ref — preview only, no capture needed */}
-                            <CertificateTemplate
+                            <TemplateComponent
                               certificate={cert}
                               verificationUrl={getVerificationUrl(cert.certificate_number)}
                             />
@@ -257,7 +262,7 @@ export function CertificateGenerator({ certificates }: CertificateGeneratorProps
         aria-hidden="true"
       >
         {selectedCert && (
-          <CertificateTemplate
+          <TemplateComponent
             ref={certificateRef}
             certificate={selectedCert}
             verificationUrl={getVerificationUrl(selectedCert.certificate_number)}

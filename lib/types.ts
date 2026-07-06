@@ -11,6 +11,8 @@ export interface Certificate {
   updated_at: string
 }
 
+export type CertificateType = "completion" | "attendance"
+
 export interface CertificateInput {
   full_name: string
   email: string

@@ -4,9 +4,11 @@ import { useState } from "react"
 import { CSVUploader } from "@/components/csv-uploader"
 import { DataPreviewTable } from "@/components/data-preview-table"
 import { CertificateGenerator } from "@/components/certificate-generator"
+import { AttendeeManagement } from "@/components/attendee-management"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { createClient } from "@/lib/supabase/client"
 import type { Certificate, CertificateInput } from "@/lib/types"
 import { Loader2, Upload, ArrowLeft, AlertCircle, CheckCircle, LogOut } from "lucide-react"
@@ -107,70 +109,81 @@ export default function AdminCertificatesPage() {
           </p>
         </div>
 
-        <div className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Upload CSV File</CardTitle>
-              <CardDescription>
-                Upload a CSV file with the following columns: full_name, email, date_issued, event_dates,
-                event_attended. Optional: venue
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <CSVUploader onDataParsed={handleDataParsed} onClear={handleClear} />
-            </CardContent>
-          </Card>
+        <Tabs defaultValue="manage" className="space-y-6">
+          <TabsList>
+            <TabsTrigger value="manage">Manage Attendees</TabsTrigger>
+            <TabsTrigger value="upload">Upload CSV</TabsTrigger>
+          </TabsList>
 
-          {error && (
-            <Alert variant="destructive">
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
+          <TabsContent value="manage" className="space-y-6">
+            <AttendeeManagement />
+          </TabsContent>
 
-          {success && (
-            <Alert className="border-green-200 bg-green-50 text-green-800">
-              <CheckCircle className="h-4 w-4" />
-              <AlertDescription>{success}</AlertDescription>
-            </Alert>
-          )}
+          <TabsContent value="upload" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Upload CSV File</CardTitle>
+                <CardDescription>
+                  Upload a CSV file with the following columns: full_name, email, date_issued, event_dates,
+                  event_attended. Optional: venue
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <CSVUploader onDataParsed={handleDataParsed} onClear={handleClear} />
+              </CardContent>
+            </Card>
 
-          {parsedData.length > 0 && (
-            <>
-              <DataPreviewTable data={parsedData} />
+            {error && (
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
 
-              <div className="flex justify-end">
-                <Button
-                  onClick={handleSubmit}
-                  disabled={isSubmitting}
-                  size="lg"
-                  className="gap-2"
-                >
-                  {isSubmitting ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <Upload className="h-4 w-4" />
-                  )}
-                  Generate {parsedData.length} Certificates
-                </Button>
-              </div>
-            </>
-          )}
+            {success && (
+              <Alert className="border-green-200 bg-green-50 text-green-800">
+                <CheckCircle className="h-4 w-4" />
+                <AlertDescription>{success}</AlertDescription>
+              </Alert>
+            )}
 
-          <CertificateGenerator certificates={generatedCertificates} />
-        </div>
+            {parsedData.length > 0 && (
+              <>
+                <DataPreviewTable data={parsedData} />
 
-        <div className="mt-12 p-6 bg-muted/50 rounded-lg">
-          <h2 className="text-lg font-semibold mb-3">CSV Format Guide</h2>
-          <p className="text-sm text-muted-foreground mb-4">
-            Your CSV file should have the following structure:
-          </p>
-          <pre className="bg-background p-4 rounded-md text-sm overflow-x-auto border">
+                <div className="flex justify-end">
+                  <Button
+                    onClick={handleSubmit}
+                    disabled={isSubmitting}
+                    size="lg"
+                    className="gap-2"
+                  >
+                    {isSubmitting ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Upload className="h-4 w-4" />
+                    )}
+                    Generate {parsedData.length} Certificates
+                  </Button>
+                </div>
+              </>
+            )}
+
+            <CertificateGenerator certificates={generatedCertificates} />
+
+            <div className="p-6 bg-muted/50 rounded-lg">
+              <h2 className="text-lg font-semibold mb-3">CSV Format Guide</h2>
+              <p className="text-sm text-muted-foreground mb-4">
+                Your CSV file should have the following structure:
+              </p>
+              <pre className="bg-background p-4 rounded-md text-sm overflow-x-auto border">
 {`full_name,email,date_issued,event_dates,event_attended,venue
 John Doe,john@example.com,2024-01-15,Tech Summit 2024,San Jose City, Nueva Ecija
 Jane Smith,jane@example.com,2024-01-15,Tech Summit 2024,Resorts World Manila`}
-          </pre>
-        </div>
+              </pre>
+            </div>
+          </TabsContent>
+        </Tabs>
       </div>
     </main>
   )
