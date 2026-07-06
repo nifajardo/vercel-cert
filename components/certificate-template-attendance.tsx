@@ -129,34 +129,20 @@ export const CertificateTemplateAttendance = forwardRef<HTMLDivElement, Certific
           <strong>{event_date}</strong>.
         </div>
 
-        {/* Description */}
-        <div
-          style={{
-            position: "absolute",
-            top: "410px",
-            left: "80px",
-            right: "100px",
-            textAlign: "center",
-            fontSize: "21px",
-            lineHeight: 1,
-          }}
-        >
-          This also certifies that he/she has satisfactorily completed all the workshop
-          outputs which validates his/her achievement of the intended learning outcomes.
-        </div>
+     
 
         {/* Date + Venue */}
         <div
           style={{
             position: "absolute",
-            top: "480px",
+            top: "430px",
             left: "80px",
             right: "200px",
             textAlign: "center",
             fontSize: "21px",
           }}
         >
-          Given this <strong>{ordinal(day)}</strong> day of{" "}
+          Given this <strong>{ordinal(day)}</strong> of{" "}
           <strong>{month}</strong> <strong>{year}</strong>
           {certificate.venue && (
             <>
