@@ -7,20 +7,6 @@ interface CertificateTemplateAttendanceProps {
   verificationUrl: string
 }
 
-/**
- * Certificate of Attendance template.
- *
- * This is a starting-point clone of CertificateTemplate (Completion). The field
- * overlays below are wired up and working — all that's left is:
- *
- *   1. Drop your Certificate of Attendance background image into /public
- *      (e.g. /public/TWP_2026_attendance.png)
- *   2. Update the `src` on the <img> below to point to it
- *   3. Nudge the top/left/right px values on each overlay so they line up
- *      with your new artwork (the current values match the Completion layout)
- *
- * Canvas: 1122 × 794 px (A4 landscape)
- */
 export const CertificateTemplateAttendance = forwardRef<HTMLDivElement, CertificateTemplateAttendanceProps>(
   ({ certificate, verificationUrl }, ref) => {
     const issued = new Date(certificate.date_issued)
@@ -138,8 +124,25 @@ export const CertificateTemplateAttendance = forwardRef<HTMLDivElement, Certific
             fontFamily: "Montserrat, 'Arial', sans-serif",
           }}
         >
-          For his/her attendance in the <strong>{certificate.event_attended}</strong> held on{" "}
+          For his/her active participation in the{" "}
+          <strong>{certificate.event_attended}</strong> held on{" "}
           <strong>{event_date}</strong>.
+        </div>
+
+        {/* Description */}
+        <div
+          style={{
+            position: "absolute",
+            top: "410px",
+            left: "80px",
+            right: "100px",
+            textAlign: "center",
+            fontSize: "21px",
+            lineHeight: 1,
+          }}
+        >
+          This also certifies that he/she has satisfactorily completed all the workshop
+          outputs which validates his/her achievement of the intended learning outcomes.
         </div>
 
         {/* Date + Venue */}
@@ -153,11 +156,11 @@ export const CertificateTemplateAttendance = forwardRef<HTMLDivElement, Certific
             fontSize: "21px",
           }}
         >
-          Given this <strong>{ordinal(day)}</strong> day of <strong>{month}</strong> <strong>{year}</strong>
+          Given this <strong>{ordinal(day)}</strong> day of{" "}
+          <strong>{month}</strong> <strong>{year}</strong>
           {certificate.venue && (
             <>
-              {" "}
-              at <strong>{certificate.venue}</strong>
+              {" "}at <strong>{certificate.venue}</strong>
             </>
           )}
           .
